@@ -48,6 +48,8 @@ class League(models.Model):
 #    end_date = models.DateField(blank=True, null=True)
     country = models.CharField(max_length=100)
     logo = models.ImageField(upload_to='leagues/logos/', blank=True, null=True)
+    oddsportal_path = models.CharField(max_length=200, blank=True, 
+        help_text="Suffix for constructing OddsPortal URL")
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -88,6 +90,50 @@ class Match(models.Model):
     def __str__(self):
         return f"{self.home_team.name} vs {self.away_team.name}"
 
+class Bookmaker(models.Model):
+    name = models.CharField(max_length=100)
+    oddsportal_name = models.CharField(max_length=100, unique=True)
+    logo = models.ImageField(upload_to='bookmakers/logos/', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    priority = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['-priority', 'name']
+
+class Odds(models.Model):
+    ODDS_TYPE_CHOICES = [
+        ('decimal', 'Decimal'),
+        ('fractional', 'Fractional'),
+        ('american', 'American'),
+    ]
+
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='match_odds')
+    bookmaker = models.ForeignKey(Bookmaker, on_delete=models.CASCADE, related_name='bookmaker_odds')
+    market = models.CharField(max_length=50)
+    parameter = models.FloatField(null=True, blank=True, help_text="For handicap, over/under markets")
+    home_odds = models.DecimalField(max_digits=7, decimal_places=2)
+    draw_odds = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    away_odds = models.DecimalField(max_digits=7, decimal_places=2)
+    odds_type = models.CharField(max_length=20, choices=ODDS_TYPE_CHOICES, default='decimal')
+    is_live = models.BooleanField(default=False)
+    last_updated = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Odds"
+        unique_together = ('match', 'bookmaker', 'market', 'parameter')
+        indexes = [
+            models.Index(fields=['match', 'market', 'is_live']),
+            models.Index(fields=['last_updated']),
+        ]
+
+    def __str__(self):
+        return f"{self.match} - {self.market} ({self.bookmaker})"
+
 class Deposit(models.Model):
     user = models.ForeignKey('account.User', on_delete=models.CASCADE, related_name='deposits')
     deposit_id = ShortUUIDField(unique=True, length=10, max_length=15)
@@ -119,22 +165,6 @@ class Withdrawal(models.Model):
     def __str__(self):
         return f"Withdrawal of {self.amount} {self.cryptocurrency} by {self.user} ({self.status})"
     
-#class Transaction(models.Model):
-#    user = models.ForeignKey('account.User', on_delete=models.CASCADE, related_name='transactions')
-#    amount = models.DecimalField(max_digits=10, decimal_places=8)
-#    cryptocurrency = models.ForeignKey(Cryptocurrency, on_delete=models.CASCADE, null=True, blank=True)
-#    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
-#    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-#    created_at = models.DateTimeField(default=timezone.now)
-#    updated_at = models.DateTimeField(auto_now=True)
-#
-#    
-#    def __str__(self):
-#        return f"{self.transaction_type.capitalize()} of {self.amount} {self.cryptocurrency} by {self.user} ({self.status})"
-#
-#    class Meta:
-#        verbose_name = 'Transaction'
-#        verbose_name_plural = 'Transactions'
 
 @receiver(post_save, sender=Deposit)
 def update_balance_on_deposit(sender, instance, **kwargs):

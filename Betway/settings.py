@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'account',
     'core',
     'betting',
+    'sportsbook',
 
 ]
 
@@ -84,6 +85,22 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+
+# Cache settings
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+# Cache timeouts
+LIVE_ODDS_CACHE_TIMEOUT = 30  # 30 seconds for live odds
+PREMATCH_ODDS_CACHE_TIMEOUT = 300  # 5 minutes for pre-match odds
 
 
 # Password validation

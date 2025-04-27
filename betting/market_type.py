@@ -1,3 +1,4 @@
+#betting/market_type.py
 from django.db import models
 from core.models import SPORT_CHOICES
 

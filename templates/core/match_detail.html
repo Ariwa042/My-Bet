@@ -1,0 +1,33 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ match.home_team.name }} vs {{ match.away_team.name }} - Betway{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2>Match Details</h2>
+        </div>
+        <div class="card-body">
+            <h3>{{ match.home_team.name }} vs {{ match.away_team.name }}</h3>
+            <div class="match-info">
+                <p><strong>League:</strong> {{ match.league.name }}</p>
+                <p><strong>Date:</strong> {{ match.match_date|date:"F j, Y" }}</p>
+                <p><strong>Time:</strong> {{ match.match_time }}</p>
+                <p><strong>Status:</strong> {{ match.status }}</p>
+            </div>
+
+            <h4>Available Odds</h4>
+            <div class="odds-container">
+                {% for odd in odds %}
+                    <div class="odd-item">
+                        <p><strong>{{ odd.market_type.name }}:</strong> {{ odd.odds_value }}</p>
+                    </div>
+                {% empty %}
+                    <p>No odds available for this match.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

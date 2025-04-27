@@ -1,0 +1,41 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Deposit Instructions - Betway{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Complete Your Deposit</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h4>Amount to Send: {{ amount }} {{ cryptocurrency.symbol }}</h4>
+                        <div class="qr-code-container my-4">
+                            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" class="img-fluid">
+                        </div>
+                        <div class="wallet-address">
+                            <p><strong>Wallet Address:</strong></p>
+                            <p class="text-break">{{ cryptocurrency.wallet_address }}</p>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <h5>Important Instructions:</h5>
+                        <ol>
+                            <li>Scan the QR code or copy the wallet address</li>
+                            <li>Send exactly {{ amount }} {{ cryptocurrency.symbol }}</li>
+                            <li>Wait for confirmation (usually takes 10-30 minutes)</li>
+                        </ol>
+                    </div>
+                    <form method="post" class="text-center">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">I've Made the Payment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

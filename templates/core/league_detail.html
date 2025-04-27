@@ -1,0 +1,47 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ league.name }} - Betway{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ league.name }}</h2>
+    
+    <h3>Teams</h3>
+    <div class="row">
+        {% for team in teams %}
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ team.name }}</h5>
+                        {% if team.logo %}
+                            <img src="{{ team.logo.url }}" alt="{{ team.name }} logo" class="img-fluid">
+                        {% endif %}
+                        <a href="{% url 'core:team_detail' team.id %}" class="btn btn-primary">View Team</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>No teams in this league.</p>
+        {% endfor %}
+    </div>
+
+    <h3>Matches</h3>
+    <div class="row">
+        {% for match in matches %}
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>{{ match.home_team.name }} vs {{ match.away_team.name }}</h5>
+                        <p>Date: {{ match.match_date|date:"F j, Y" }}</p>
+                        <p>Time: {{ match.match_time }}</p>
+                        <p>Status: {{ match.status }}</p>
+                        <a href="{% url 'core:match_detail' match.id %}" class="btn btn-primary">View Match</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>No matches scheduled.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

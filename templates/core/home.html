@@ -1,0 +1,66 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Home - Betway{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% if user.is_authenticated %}
+    <div class="user-info mb-4 p-3 border rounded">
+        <p><strong>Welcome, {{ user.email }}</strong></p>
+        <p>Balance: ${{ balance }}</p>
+        <div class="btn-group" role="group">
+            <a href="{% url 'core:deposit' %}" class="btn btn-success">Deposit</a>
+            <a href="{% url 'core:withdrawal' %}" class="btn btn-warning">Withdraw</a>
+            <a href="{% url 'core:transaction_history' %}" class="btn btn-info">Transactions</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-4">
+            <h2>Leagues</h2>
+            {% for league in leagues %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ league.name }}</h5>
+                        <p class="card-text">{{ league.country }}</p>
+                        <a href="{% url 'core:league_detail' league.id %}" class="btn btn-primary">View League</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No leagues available.</p>
+            {% endfor %}
+        </div>
+
+        <div class="col-md-4">
+            <h2>Teams</h2>
+            {% for team in teams %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ team.name }}</h5>
+                        <p class="card-text">{{ team.league.name }}</p>
+                        <a href="{% url 'core:team_detail' team.id %}" class="btn btn-primary">View Team</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No teams available.</p>
+            {% endfor %}
+        </div>
+
+        <div class="col-md-4">
+            <h2>Latest Matches</h2>
+            {% for match in matches %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ match.home_team.name }} vs {{ match.away_team.name }}</h5>
+                        <p>{{ match.match_date|date:"F j, Y" }}</p>
+                        <a href="{% url 'core:match_detail' match.id %}" class="btn btn-primary">View Match</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No matches available.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
